@@ -1,0 +1,38 @@
+{
+  "cs": {
+    "1b": {
+      "Network and Communication": {
+        "proctor": "",
+        "day": "monday",
+        "time": "8am - 10pm"
+      },
+      "Readings in Philippine History": {
+        "proctor": "",
+        "day": "thursday",
+        "time": "10am - 1pm"
+      },
+      "System Analysis Design": {
+        "proctor": "",
+        "day": "friday",
+        "time": "8am - 10pm"
+      }
+    },
+    "2b": {
+      "Object Oriented Programming": {
+        "proctor": "",
+        "day": "tuesday",
+        "time": "8am - 10pm"
+      },
+      "Readings in Philippine History": {
+        "proctor": "",
+        "day": "tuesday",
+        "time": "10am - 1pm"
+      },
+      "System Analysis Design": {
+        "proctor": "",
+        "day": "wednesday",
+        "time": "8am - 10pm"
+      }
+    }
+  }
+}
