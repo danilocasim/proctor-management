@@ -1,0 +1,69 @@
+{
+  "scheduleName": "First Semester Exam Schedule",
+  "academicYear": "2024-2025",
+  "semester": "First",
+  "examDays": 5,
+  "maxExamsPerDay": 3,
+  "examDuration": 90,
+  "schedule": [
+    {
+      "day": "Monday",
+      "date": "2024-10-07",
+      "timeslots": [
+        {
+          "startTime": "08:00",
+          "endTime": "09:30",
+          "exams": [
+            {
+              "subject": "Discrete Structures",
+              "course": "BSCS",
+              "sections": ["A", "B", "C"],
+              "rooms": ["Room 101", "Room 102", "Room 103"],
+              "proctors": ["Prof. Smith", "Prof. Johnson", "Prof. Lee"]
+            }
+          ]
+        },
+        {
+          "startTime": "11:30",
+          "endTime": "13:00",
+          "exams": [
+            {
+              "subject": "Programming",
+              "course": "BSCS",
+              "sections": ["A", "B", "C"],
+              "rooms": ["Room 101", "Room 102", "Room 103"],
+              "proctors": ["Prof. Smith", "Prof. Johnson", "Prof. Lee"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "day": "Tuesday",
+      "date": "2024-10-08",
+      "timeslots": [
+        {
+          "startTime": "08:00",
+          "endTime": "09:30",
+          "exams": [
+            {
+              "subject": "Database Systems",
+              "course": "BSCS",
+              "sections": ["A", "B", "C"],
+              "rooms": ["Room 201", "Room 202", "Room 203"],
+              "proctors": ["Prof. Brown", "Prof. Davis", "Prof. Wilson"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "statistics": {
+    "totalExamsScheduled": 3,
+    "roomsUtilized": 6,
+    "proctorsAssigned": 6,
+    "conflictsResolved": 0
+  },
+  "lastUpdated": "2024-10-01T08:00:00Z",
+  "version": "1.0"
+}
