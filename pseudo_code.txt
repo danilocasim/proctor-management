@@ -19,7 +19,7 @@
 - Maximum subjects per section per day: 3
 - Preferred maximum subjects per section per day: 2
 - Minimum time between exams for same section: 30 minutes
-- Default exam days: Monday to Saturday (6 days)
+- Default exam days: Monday to Friday (5 days)
 
 // Room Constraints
 - Room capacity must exceed or equal number of students in a section
