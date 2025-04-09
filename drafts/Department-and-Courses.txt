@@ -1,0 +1,40 @@
+1.  Institute of Social Works
+a. Bachelor of Science in Social Works (BSSW)
+
+2. Institute of Public Policy and Governance 
+a. Bachelor of Arts in Political Science (BAPOL)
+
+3. College of Teacher Education
+a. Bachelor in Elementary Education (BEED)
+b. Bachelor in Elementary Education Major in Early Childhood Education (BEEDECE)
+c. Bachelor in Elementary Education Major in General Elementary Education (BEEDGE)
+d. Bachelor in Elementary Education Major in Special Needs Education (BEEDSNE)
+e. Bachelor in Secondary Education (BSED)
+f. Bachelor in Secondary Education Major in English (BSEDENG)
+g. Bachelor in Secondary Education Major in Filipino (BSEDFIL)
+h. Bachelor in Secondary Education Major in Mathematics (BSEDMAT)
+i. Bachelor in Secondary Education Major in Physical Education (BSEDPE)
+j.  Bachelor in Secondary Education Major in Sciences (BSEDSCI)
+k. Bachelor in Secondary Education Major in Scocial Studies
+
+4. College of Accountancy
+a. Bachelor of Science in Accountacncy (BSA)
+b. Bachelor of Science in Management Accounting (BSMA)
+
+5.  College of Information Technology & Computer Studies Technology (CITCS)
+a. Associate in Computer Technology (ACT)
+b. Bachelor Science in Computer Science (BSCS)
+c. Bachelor Science in Information Technology (BSIT)
+
+6. College of Criminal Justice
+a. Bachelor of Science in Criminology (BSCRIM)
+
+7. College of Business Adminstration
+a. Bachelor of Science in Business Adminstration (BSBA)
+b. Bachelor of Science in Business Adminstration Major in Human Resource Developement and Management (BSBA2HR)
+c. Bachelor of Science in Business Adminstration Major in Marketing Management (BSBA2MM)
+d. Bachelor of Science in Business Adminstration Major in Operations Management (BSBA2OM)
+
+8. College of Arts and Science
+a. Bachelor of Arts in Mass Communication (BACOM)
+b. Bachelor of Science in Psychology (BSPY)
