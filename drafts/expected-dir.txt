@@ -1,0 +1,33 @@
+/Exam-Scheduling/src/
+├── index.php              # Main entry point/login screen
+├── dashboard.php          # Dashboard with weekly schedule
+├── assets/
+│   ├── css/
+│   │   ├── style.css      # Main stylesheet
+│   │   └── bootstrap.min.css # Bootstrap framework
+│   ├── js/
+│   │   ├── script.js      # Main JavaScript file
+│   │   └── bootstrap.min.js  # Bootstrap JavaScript
+│   └── img/               # Images directory
+├── includes/
+│   ├── config.php         # Database configuration
+│   ├── functions.php      # Helper functions
+│   ├── header.php         # Common header
+│   ├── footer.php         # Common footer
+│   └── auth.php           # Authentication functions
+├── proctor/
+│   ├── list.php           # List all proctors
+│   ├── add.php            # Add new proctor
+│   ├── edit.php           # Edit proctor details
+│   └── attendance.php     # Proctor attendance sheets
+├── schedule/
+│   ├── view.php           # View schedules
+│   ├── generate.php       # Generate new schedule
+│   ├── edit.php           # Edit existing schedule
+│   └── export.php         # Export schedules (e.g., PDF)
+├── api/
+│   ├── proctors.php       # API for proctor data
+│   ├── schedule.php       # API for schedule data
+│   └── search.php         # API for search functionality
+└── database/
+    └── proctoring_system.sql # SQL file for database setup
