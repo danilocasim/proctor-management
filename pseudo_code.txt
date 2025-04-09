@@ -1,0 +1,167 @@
+// Proctoring Management System - Exam Scheduling Algorithm
+// Enhanced Algorithm with Optimization for Room and Proctor Allocation
+
+// 1. SYSTEM CONSTANTS
+// ------------------
+// Exam Duration Constants
+- Standard exam duration: 1 hour 30 minutes (90 minutes)
+- Extended exam duration (for special needs): 2 hours (120 minutes)
+
+// Time Constants
+- Morning session start: 8:00 AM
+- Afternoon session start: 1:00 PM
+- Lunch break: 11:30 AM - 1:00 PM (90 minutes)
+- Short break between exams: 30 minutes
+
+// 2. SCHEDULING CONSTRAINTS
+// --------------------------
+// Per Section Constraints
+- Maximum subjects per section per day: 3
+- Preferred maximum subjects per section per day: 2
+- Minimum time between exams for same section: 30 minutes
+- Default exam days: Monday to Saturday (6 days)
+
+// Room Constraints
+- Room capacity must exceed or equal number of students in a section
+- Special needs students require designated rooms
+- Certain subjects may require specific types of rooms (e.g., labs)
+
+// Proctor Constraints
+- Each exam room requires at least one proctor
+- Rooms with more than 30 students require two proctors
+- Maximum number of proctoring sessions per proctor per day: 3
+- Minimum break between proctoring sessions: 30 minutes
+
+// 3. OPTIMIZATION OBJECTIVES
+// --------------------------
+// Primary Objectives
+- Minimize total number of exam days
+- Minimize number of rooms needed
+- Ensure optimal proctor utilization
+- Ensure same subjects across sections are scheduled simultaneously
+
+// Secondary Objectives
+- Prefer morning slots over afternoon slots when possible
+- Minimize back-to-back exams for students within a day
+- Balance proctor workload across available proctors
+- Minimize room changes for a section throughout exam period
+
+// 4. SCHEDULING ALGORITHM
+// -----------------------
+// STEP 1: INITIALIZATION
+- Initialize all required variables and parameters
+- Set exam duration, max subjects per day, available days
+- Create empty schedule matrix (Day x Time x Room)
+- Create student section mapping
+- Create subject-section mapping
+- Initialize proctor availability matrix
+
+// STEP 2: DATA COLLECTION AND VALIDATION
+- Import courses, sections, subjects, rooms, and proctors data
+- Use Excel as data source for collections and to read the other excel sheets
+- Validate data integrity (no missing values, no duplicates)
+- Check for initial obvious conflicts
+- Calculate total number of exams needed across all sections
+- Estimate minimum required exam days and rooms
+
+// STEP 3: SUBJECT CLUSTERING
+- Group subjects by course and year
+- Identify subjects taught across multiple sections
+- Prioritize subjects by:
+  * Subjects common across most sections (highest priority)
+  * Subjects with specific room requirements
+  * Subjects with larger student counts
+
+// STEP 4: DAY ALLOCATION
+- Distribute subjects across available days following these rules:
+  * Rule 1: Allocate at most 3 subjects per section per day
+  * Rule 2: Schedule same subjects for different sections on same day
+  * Rule 3: Balance subject difficulty within a day (if difficulty metadata available)
+  * Rule 4: Allocate subjects with special requirements first
+- For each day:
+  * Morning slot 1: 8:00 AM - 9:30 AM
+  * Morning slot 2: 10:00 AM - 11:30 AM
+  * Afternoon slot 1: 1:00 PM - 2:30 PM
+  * Afternoon slot 2: 3:00 PM - 4:30 PM
+
+// STEP 5: TIME SLOT ALLOCATION
+- For each day:
+  * Assign highest priority subjects to earliest available slots
+  * Ensure subjects common to multiple sections get same time slot
+  * Apply time constraints (lunch breaks, minimum gaps between exams)
+  * If a section has multiple exams in a day, ensure adequate breaks
+
+// STEP 6: ROOM ASSIGNMENT
+- Initialize room availability matrix for each time slot
+- For each scheduled exam:
+  * Sort rooms by capacity (smallest suitable room first)
+  * Check if section had a previous exam that day:
+    - If yes, try to assign same room for continuity
+    - If not possible, find closest available room
+  * Assign room with capacity >= section size
+  * For exams across multiple sections:
+    - Ensure rooms are in same building if possible
+  * Mark room as occupied for the time slot
+  * Update room availability matrix
+
+// STEP 7: PROCTOR ASSIGNMENT
+- Initialize proctor availability matrix
+- For each scheduled exam with assigned room:
+  * Calculate required number of proctors based on student count
+  * Check for faculty members who teach the subject
+    - Preferably assign different proctors than subject teachers
+  * Check proctor expertise and preferences if available
+  * Select available proctors with fewest assignments
+  * Ensure proctor has adequate breaks between assignments
+  * If proctor shortage, identify and resolve (request additional proctors)
+
+// STEP 8: CONFLICT RESOLUTION
+- Identify all scheduling conflicts:
+  * Room double-bookings
+  * Section scheduled for multiple exams simultaneously
+  * Proctor double-bookings
+  * Insufficient breaks between exams
+- For each conflict:
+  * Try room reassignment first
+  * If unsuccessful, try time slot reassignment
+  * If unsuccessful, try day reassignment
+  * Log unresolvable conflicts for manual review
+
+// STEP 9: OPTIMIZATION
+- Evaluate current schedule against optimization objectives
+- Apply iterative improvements:
+  * Minimize room changes for sections
+  * Balance proctor workload
+  * Reduce total rooms used by consolidating when possible
+  * Reduce total days if possible
+- Repeat until no further improvements or max iterations reached
+
+// STEP 10: SCHEDULE FINALIZATION
+- Generate final schedule with all assignments:
+  * Day and date
+  * Time slot
+  * Subject
+  * Sections
+  * Room
+  * Assigned proctors
+- Calculate and report statistics:
+  * Total exam days used
+  * Total rooms used
+  * Average exams per day
+  * Proctor utilization rate
+  * Student exam density (exams per day)
+
+// STEP 11: OUTPUT GENERATION
+- Generate master schedule for administration
+- Generate per-section schedules for students
+- Generate per-room schedules for facility management
+- Generate per-proctor schedules
+- Export in multiple formats (PDF, Excel, web view)
+- Provide API endpoints for integration with other systems
+
+// STEP 12: MONITORING AND ADJUSTMENT
+- Allow for manual adjustments to the generated schedule
+- Record changes and reasons for future algorithm improvement
+- Provide real-time monitoring during exam period
+- Support last-minute changes (proctor absence, room unavailability)
+- Collect feedback for future optimization
