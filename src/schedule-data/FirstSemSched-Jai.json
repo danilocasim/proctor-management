@@ -1,0 +1,25 @@
+[
+  {
+    "department": "College of Information Technology and Computer Studies",
+    "courses": [
+      {
+        "name": "BSIT",
+        "sections": [
+          {
+            "name": "3-1",
+            "subjects": [
+              {
+                "name": "Web Development",
+                "proctor": "",
+                "day": "",
+                "time": "",
+                "room": "",
+                "examDate": ""
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
