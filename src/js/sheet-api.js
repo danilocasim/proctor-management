@@ -23,11 +23,11 @@ export class SheetAPI {
     return row.split(",").map((val) => val.substring(1, val.length - 1));
   }
 
-  static async sheetNamesAPI() {
+  static async sheetNamesAPI(sheetName) {
     try {
       const sheetId = "1Pmbx5h6gPFWzsRBaIhd8NoTd3mAU5gDbufd-4rPRzlk";
-      const sheetName = encodeURIComponent("Schedule Data");
-      const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
+      const encodedSheetName = encodeURIComponent(sheetName);
+      const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodedSheetName}`;
 
       const response = await fetch(sheetURL);
 
@@ -40,7 +40,12 @@ export class SheetAPI {
     }
   }
 
-  static async getNames() {
-    return await this.sheetNamesAPI();
+  static async getNames(sheetNames) {
+    const allData = [];
+    for (const sheetName of sheetNames) {
+      const data = await this.sheetNamesAPI(sheetName);
+      allData.push({ sheetName, data });
+    }
+    return allData;
   }
 }
