@@ -1,8 +1,3 @@
-import schedule from "../schedule-data/first-sem-schedule.json" with { type: "json" };
-import { SheetAPI } from "./sheet-api.js";
+import { AssignmentRoom } from "./assigned-room.js";
 
-console.log(await SheetAPI.getNames());
-
-
-
-
+console.log(await AssignmentRoom.getAssignedSchedule());

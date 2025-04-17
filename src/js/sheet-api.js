@@ -26,7 +26,7 @@ export class SheetAPI {
   static async sheetNamesAPI() {
     try {
       const sheetId = "1Pmbx5h6gPFWzsRBaIhd8NoTd3mAU5gDbufd-4rPRzlk";
-      const sheetName = encodeURIComponent("Schedule Data");
+      const sheetName = encodeURIComponent("Prof Data");
       const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
 
       const response = await fetch(sheetURL);
