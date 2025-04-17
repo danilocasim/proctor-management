@@ -10,7 +10,11 @@
             "subjects": [
               {
                 "name": "Web Development",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Monday",
+                  "time": "9:00 AM - 11:00 AM"
+                }
               }
             ]
           },
@@ -19,7 +23,11 @@
             "subjects": [
               {
                 "name": "Systems Analysis and Design",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Tuesday",
+                  "time": "1:00 PM - 3:00 PM"
+                }
               }
             ]
           }
@@ -33,7 +41,11 @@
             "subjects": [
               {
                 "name": "Artificial Intelligence",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Wednesday",
+                  "time": "10:00 AM - 12:00 PM"
+                }
               }
             ]
           },
@@ -42,7 +54,11 @@
             "subjects": [
               {
                 "name": "Introduction to Computing",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Thursday",
+                  "time": "8:00 AM - 10:00 AM"
+                }
               }
             ]
           }
@@ -61,7 +77,11 @@
             "subjects": [
               {
                 "name": "Philippine Government",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Friday",
+                  "time": "2:00 PM - 4:00 PM"
+                }
               }
             ]
           },
@@ -70,7 +90,11 @@
             "subjects": [
               {
                 "name": "International Relations",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Monday",
+                  "time": "1:00 PM - 3:00 PM"
+                }
               }
             ]
           }
@@ -84,7 +108,11 @@
             "subjects": [
               {
                 "name": "Media Writing",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Wednesday",
+                  "time": "3:00 PM - 5:00 PM"
+                }
               }
             ]
           },
@@ -93,7 +121,11 @@
             "subjects": [
               {
                 "name": "Broadcast Communication",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Thursday",
+                  "time": "10:00 AM - 12:00 PM"
+                }
               }
             ]
           }
@@ -112,7 +144,11 @@
             "subjects": [
               {
                 "name": "Financial Accounting",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Tuesday",
+                  "time": "9:00 AM - 11:00 AM"
+                }
               }
             ]
           },
@@ -121,7 +157,11 @@
             "subjects": [
               {
                 "name": "Marketing Management",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Wednesday",
+                  "time": "1:00 PM - 3:00 PM"
+                }
               }
             ]
           }
@@ -135,7 +175,11 @@
             "subjects": [
               {
                 "name": "Entrepreneurial Finance",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Friday",
+                  "time": "8:00 AM - 10:00 AM"
+                }
               }
             ]
           },
@@ -144,7 +188,11 @@
             "subjects": [
               {
                 "name": "Strategic Management",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Monday",
+                  "time": "10:00 AM - 12:00 PM"
+                }
               }
             ]
           }
@@ -163,7 +211,11 @@
             "subjects": [
               {
                 "name": "Language and Literature",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Thursday",
+                  "time": "1:00 PM - 3:00 PM"
+                }
               }
             ]
           },
@@ -172,7 +224,11 @@
             "subjects": [
               {
                 "name": "Teaching English as a Second Language",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Friday",
+                  "time": "10:00 AM - 12:00 PM"
+                }
               }
             ]
           }
@@ -186,7 +242,11 @@
             "subjects": [
               {
                 "name": "Child and Adolescent Development",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Wednesday",
+                  "time": "9:00 AM - 11:00 AM"
+                }
               }
             ]
           },
@@ -195,7 +255,11 @@
             "subjects": [
               {
                 "name": "Curriculum Development",
-                "proctor": ""
+                "proctor": "",
+                "exam": {
+                  "day": "Tuesday",
+                  "time": "3:00 PM - 5:00 PM"
+                }
               }
             ]
           }
