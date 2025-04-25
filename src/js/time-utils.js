@@ -1,26 +1,23 @@
+// time-utils.js
+
 export function parseTime(timeStr) {
-  const normalized = timeStr.trim().toUpperCase().replace(/\s+/g, ""); // e.g., "3:00pm" -> "3:00PM"
-  const match = normalized.match(/^(\d{1,2}):(\d{2})(AM|PM)$/);
+  const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
   if (!match) throw new Error("Invalid time format: " + timeStr);
-
-  let [_, hours, minutes, meridian] = match;
-  hours = parseInt(hours);
-  minutes = parseInt(minutes);
-
-  if (meridian === "PM" && hours !== 12) hours += 12;
-  if (meridian === "AM" && hours === 12) hours = 0;
-
-  return hours * 60 + minutes;
+  let [_, h, m, ap] = match;
+  h = parseInt(h, 10);
+  m = parseInt(m, 10);
+  if (ap) {
+    ap = ap.toUpperCase();
+    if (ap === "PM" && h < 12) h += 12;
+    if (ap === "AM" && h === 12) h = 0;
+  }
+  return h * 60 + m;
 }
 
-export function parseTimeRange(range) {
-  if (range.trim().toLowerCase() === "anytime") return [0, 24 * 60];
-  const [startStr, endStr] = range.split(" - ").map((s) => s.trim());
-  return [parseTime(startStr), parseTime(endStr)];
-}
-
-export function isTimeWithinRange(targetRange, availabilityRange) {
-  const [targetStart, targetEnd] = parseTimeRange(targetRange);
-  const [availStart, availEnd] = parseTimeRange(availabilityRange);
-  return targetStart >= availStart && targetEnd <= availEnd;
+export function minutesToTimeString(mins) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${m.toString().padStart(2, "0")} ${ampm}`;
 }
