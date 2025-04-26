@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <script src="../js/index.js" type="module"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../../assets/image/board.jpg" type="image/x-icon">
+  <title>Proctor Management System</title>
+</head>
+<body>
+  <label for="scheduleFilter">Show: </label>
+  <select id="scheduleFilter">
+    <option value="scheduled">Scheduled Only</option>
+    <option value="unscheduled">Unscheduled Only</option>
+    <option value="all">All</option>
+  </select>
+  <div id="output"></div>
+  <div id="proctor-summary" style="margin-top:40px;"></div>
+  <button id="exportExcelBtn">Export to Excel</button>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="../js/index.js" type="module"></script>
+</body>
 </html>
