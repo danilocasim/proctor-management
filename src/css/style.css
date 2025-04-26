@@ -35,7 +35,7 @@ body {
 
 .container {
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr 4fr;
   min-height: 100vh;
 }
 
@@ -45,7 +45,7 @@ body {
   padding: 1rem;
   display: grid;
   place-content: start;
-  gap: 3rem;
+  gap: 8rem;
 }
 
 .sidebar *,
@@ -60,7 +60,9 @@ body {
 .sidebar ul {
   display: grid;
   grid-auto-flow: row;
-  gap: 1rem;
+  align-content: start;
+  gap: 4rem;
+  height: 100vh;
 }
 
 .sidebar li {
@@ -193,8 +195,8 @@ header {
 }
 
 .main-content {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
+  display: flex;
+  align-items: center;
   background-color: var(--header-main-content-bg);
 }
 
