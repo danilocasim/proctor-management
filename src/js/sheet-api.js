@@ -31,6 +31,10 @@ export async function getAllSchedules() {
       const data = csvToArray(csv);
       data.forEach(row => row._tab = tab);
       allData = allData.concat(data);
+
+      // Debug logs for each tab
+      console.log(`[${tab}] Fetched CSV:`, csv);
+      console.log(`[${tab}] Parsed array:`, data);
     } catch (e) {
       console.warn(`Could not fetch tab ${tab}:`, e.message);
     }
