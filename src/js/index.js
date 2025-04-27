@@ -3,297 +3,373 @@ import { generateExamSchedule, getProctorWorkloadReport } from "./generate-exam-
 
 let lastScheduleData = [];
 
-function renderOutput(data, isError = false, filter = "scheduled") {
-  const outputDiv = document.getElementById("output");
-  outputDiv.innerHTML = "";
+// Helper to clean and normalize values
+function cleanValue(val) {
+  if (typeof val === "string") {
+    // Remove all double quotes and trim
+    const cleaned = val.replace(/"/g, '').trim();
+    return cleaned === "" ? "" : cleaned;
+  }
+  return val;
+}
+
+// Helper to check for truly non-empty, non-quote values
+function isNonEmpty(val) {
+  return val && cleanValue(val) !== "";
+}
+
+// Normalize a row object
+function normalizeRow(row) {
+  const norm = {};
+  Object.keys(row).forEach(key => {
+    norm[key] = cleanValue(row[key]);
+  });
+  return norm;
+}
+
+function getUniqueCourseDept(data) {
+  const set = new Set();
+  data.forEach(row => {
+    if (isNonEmpty(row['Course Code'])) set.add(cleanValue(row['Course Code']));
+    if (isNonEmpty(row['_tab'])) set.add(cleanValue(row['_tab']));
+  });
+  return Array.from(set);
+}
+
+function populateFilters(data) {
+  const columns = [
+    { id: "courseCodeFilter", key: "Course Code" },
+    { id: "departmentFilter", key: "_tab" },
+    { id: "yearFilter", key: "Year" },
+    { id: "sectionFilter", key: "Section" },
+    { id: "dayFilter", key: "Day" },
+    { id: "roomFilter", key: "Room" },
+    { id: "proctorFilter", key: "Proctor" }
+  ];
+  columns.forEach(col => {
+    const select = document.querySelector(`#${col.id}`);
+    if (!select) return;
+    const unique = Array.from(new Set(data.map(row => cleanValue(row[col.key])).filter(isNonEmpty)));
+    // Save the current value so we can try to preserve it
+    const prevVal = select.value;
+    select.innerHTML = `<option value=\"all\">All</option>` + unique.map(val => `<option value=\"${val}\">${val}</option>`).join('');
+    // Try to restore previous selection if possible
+    if (unique.includes(prevVal)) select.value = prevVal;
+    else select.value = 'all';
+  });
+}
+
+function renderOutput(data, isError = false, scheduleFilter = "scheduled") {
+  console.log('Rendering output with data:', data, 'isError:', isError, 'scheduleFilter:', scheduleFilter);
+  // Hide/show the Reason column header
+  const showReason = scheduleFilter !== "scheduled";
+  const reasonHeader = document.querySelector('#reasonHeader');
+  if (reasonHeader) reasonHeader.style.display = showReason ? "" : "none";
+  const reasonFilterHeader = document.querySelector('#reasonFilterHeader');
+  if (reasonFilterHeader) reasonFilterHeader.style.display = showReason ? "" : "none";
+
+  const tbody = document.querySelector("#scheduleTableBody");
+  tbody.innerHTML = "<tr><td colspan='10' style='color: green;'>renderOutput called! Data length: " + (Array.isArray(data) ? data.length : 'N/A') + "</td></tr>";
 
   if (isError) {
-    outputDiv.innerHTML = `<div style="color: red;">${data}</div>`;
+    tbody.innerHTML = `<tr><td colspan=\"10\" style=\"color: red;\">${data}</td></tr>`;
     return;
   }
 
   if (!Array.isArray(data) || data.length === 0) {
-    outputDiv.innerHTML = "<div>No schedule data available.</div>";
+    tbody.innerHTML = `<tr><td colspan=\"10\">No schedule data found for the selected filter(s).</td></tr>`;
     return;
   }
 
-  let filteredData;
-  if (filter === "scheduled") {
-    filteredData = data.filter(row =>
-      row.Day && row.Day !== "Unscheduled" &&
-      row.Time && row.Room && row.Proctor
+  // Remove test row before rendering real data
+  tbody.innerHTML = "";
+
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    // For mobile: add data-labels to each cell
+    const cells = [
+      {label: 'Course Code', value: cleanValue(row['Course Code'])},
+      {label: 'Department', value: isNonEmpty(row['_tab']) ? cleanValue(row['_tab']) : "N/A"},
+      {label: 'Year', value: cleanValue(row['Year'])},
+      {label: 'Section', value: cleanValue(row['Section'])},
+      {label: 'Subject', value: cleanValue(row['Subject'])},
+      {label: 'Day', value: cleanValue(row['Day'])},
+      {label: 'Time', value: cleanValue(row['Time'])},
+      {label: 'Room', value: cleanValue(row['Room'])},
+      {label: 'Proctor', value: cleanValue(row['Proctor'])}
+    ];
+    let tds = cells.map(cell => `<td data-label=\"${cell.label}\">${cell.value}</td>`).join('');
+    if (showReason) {
+      tds += `<td data-label=\"Reason\">${cleanValue(row['Reason'])}</td>`;
+    }
+    tr.innerHTML = tds;
+    if (!showReason && tr.children[9]) tr.children[9].style.display = "none";
+    tbody.appendChild(tr);
+  });
+}
+
+function filterSchedule() {
+  console.log("filterSchedule called, lastScheduleData:", lastScheduleData);
+  const scheduleFilter = document.querySelector('#viewTypeSelect'); 
+  if (!scheduleFilter) { console.warn('Missing #viewTypeSelect'); return; }
+  const courseCode = document.querySelector('#courseCodeFilter');
+  if (!courseCode) { console.warn('Missing #courseCodeFilter'); return; }
+  const department = document.querySelector('#departmentFilter');
+  if (!department) { console.warn('Missing #departmentFilter'); return; }
+  const year = document.querySelector('#yearFilter');
+  if (!year) { console.warn('Missing #yearFilter'); return; }
+  const section = document.querySelector('#sectionFilter');
+  if (!section) { console.warn('Missing #sectionFilter'); return; }
+  const day = document.querySelector('#dayFilter');
+  if (!day) { console.warn('Missing #dayFilter'); return; }
+  const room = document.querySelector('#roomFilter');
+  if (!room) { console.warn('Missing #roomFilter'); return; }
+  const proctor = document.querySelector('#proctorFilter');
+  if (!proctor) { console.warn('Missing #proctorFilter'); return; }
+
+  let filtered = lastScheduleData;
+
+  // Scheduled/Unscheduled/All filter
+  if (scheduleFilter.value === 'scheduled') {
+    filtered = filtered.filter(e =>
+      isNonEmpty(e['Course Code']) &&
+      isNonEmpty(e['Year']) &&
+      isNonEmpty(e['Section']) &&
+      isNonEmpty(e['Subject']) &&
+      e.Day && e.Day !== "Unscheduled" &&
+      e.Time && e.Room && e.Proctor
     );
-  } else if (filter === "unscheduled") {
-    filteredData = data.filter(row =>
-      !row.Day || row.Day === "Unscheduled" ||
-      !row.Time || !row.Room || !row.Proctor
+  } else if (scheduleFilter.value === 'unscheduled') {
+    filtered = filtered.filter(e =>
+      !isNonEmpty(e['Course Code']) ||
+      !isNonEmpty(e['Year']) ||
+      !isNonEmpty(e['Section']) ||
+      !isNonEmpty(e['Subject']) ||
+      !e.Day || e.Day === "Unscheduled" ||
+      !e.Time || !e.Room || !e.Proctor
     );
-  } else {
-    filteredData = data;
   }
+  // Multi-column filters
+  if (courseCode.value !== "all") filtered = filtered.filter(e => cleanValue(e['Course Code']) === courseCode.value);
+  if (department.value !== "all") filtered = filtered.filter(e => cleanValue(e['_tab']) === department.value);
+  if (year.value !== "all") filtered = filtered.filter(e => cleanValue(e['Year']) === year.value);
+  if (section.value !== "all") filtered = filtered.filter(e => cleanValue(e['Section']) === section.value);
+  if (day.value !== "all") filtered = filtered.filter(e => cleanValue(e['Day']) === day.value);
+  if (room.value !== "all") filtered = filtered.filter(e => cleanValue(e['Room']) === room.value);
+  if (proctor.value !== "all") filtered = filtered.filter(e => cleanValue(e['Proctor']) === proctor.value);
 
-  if (filteredData.length === 0) {
-    outputDiv.innerHTML = "<div>No schedule data found for this filter.</div>";
-    return;
-  }
+  renderOutput(filtered, false, scheduleFilter.value);
+  renderSchedulingSummary(filtered);
+}
 
-  // Render the summary before the table
-  renderSchedulingSummary(data);
+function renderSchedulingSummary(filteredData) {
+  const summaryDiv = document.querySelector('#proctor-summary');
+  if (!summaryDiv) return;
+  summaryDiv.innerHTML = `<div>Total exams shown: ${filteredData.length}</div>`;
+}
 
-  const preferredOrder = [
-    "Course Code", "Year", "Section", "Subject", "Day", "Time", "Room", "Proctor"
-  ];
-  const columns = [...preferredOrder, "Reason", "_tab"];
+// --- Reporting & Monitoring ---
+function groupScheduleData(data, type) {
+  // type: 'room', 'section', 'professor', 'floor'
+  const keyMap = {
+    room: row => row['Room'],
+    section: row => row['Section'],
+    professor: row => row['Proctor'],
+    floor: row => {
+      // Example: extract floor from room name like '3F-201'
+      if (row['Room'] && row['Room'].match(/\dF/)) {
+        return row['Room'].match(/\dF/)[0];
+      }
+      return 'Unknown';
+    }
+  };
+  const getKey = keyMap[type];
+  const grouped = {};
+  data.forEach(row => {
+    const key = getKey(row) || 'Unknown';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(row);
+  });
+  return grouped;
+}
 
-  // Normalize data keys
-  const normalizedData = filteredData.map(row => {
-    const normalizedRow = {};
-    columns.forEach(col => {
-      const key = Object.keys(row).find(
-        k => k.trim().toLowerCase() === col.trim().toLowerCase()
-      );
-      normalizedRow[col] = key ? row[key] : "";
+function renderReport(type) {
+  const grouped = groupScheduleData(lastScheduleData, type);
+  let html = '';
+  Object.keys(grouped).forEach(group => {
+    html += `<h3>${type.charAt(0).toUpperCase() + type.slice(1)}: ${group}</h3>`;
+    html += `<table border="1" cellpadding="5" style="border-collapse:collapse; margin-bottom: 1rem;">
+      <thead>
+        <tr>
+          <th>Course Code</th>
+          <th>Department</th>
+          <th>Year</th>
+          <th>Section</th>
+          <th>Subject</th>
+          <th>Day</th>
+          <th>Time</th>
+          <th>Room</th>
+          <th>Proctor</th>
+        </tr>
+      </thead>
+      <tbody>`;
+    grouped[group].forEach(row => {
+      html += `<tr>
+        <td>${cleanValue(row['Course Code'])}</td>
+        <td>${isNonEmpty(row['_tab']) ? cleanValue(row['_tab']) : "N/A"}</td>
+        <td>${cleanValue(row['Year'])}</td>
+        <td>${cleanValue(row['Section'])}</td>
+        <td>${cleanValue(row['Subject'])}</td>
+        <td>${cleanValue(row['Day'])}</td>
+        <td>${cleanValue(row['Time'])}</td>
+        <td>${cleanValue(row['Room'])}</td>
+        <td>${cleanValue(row['Proctor'])}</td>
+      </tr>`;
     });
-    return normalizedRow;
+    html += '</tbody></table>';
   });
+  const reportOutput = document.querySelector('#report-output');
+  if (reportOutput) reportOutput.innerHTML = html;
+}
 
-  let html = "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse;'>";
-  html += "<thead><tr>";
-  columns.forEach(col => {
-    html += `<th>${col}</th>`;
+// --- Resource Forecasting ---
+function forecastResources(data, pagesPerStudent, scantronsPerStudent) {
+  let totalStudents = 0;
+  data.forEach(row => {
+    if (row['Student Count']) {
+      totalStudents += parseInt(row['Student Count'], 10) || 0;
+    }
   });
-  html += "</tr></thead><tbody>";
+  return {
+    totalStudents,
+    bondPapers: totalStudents * pagesPerStudent,
+    scantrons: totalStudents * scantronsPerStudent
+  };
+}
 
-  normalizedData.forEach(row => {
-    html += "<tr>";
-    columns.forEach(col => {
-      if (col === "Day" || col === "Time") {
-        html += `<td><b>${row[col]}</b></td>`;
-      } else if (col === "Reason" && row[col]) {
-        html += `<td style="color: #8B0000; font-style: italic;">${row[col]}</td>`;
-      } else {
-        html += `<td>${row[col]}</td>`;
+document.addEventListener('DOMContentLoaded', function() {
+  // --- Reporting & Monitoring ---
+  const generateReportBtn = document.querySelector('#generateReportBtn');
+  if (generateReportBtn) {
+    generateReportBtn.addEventListener('click', () => {
+      const reportType = document.querySelector('#reportType');
+      if (reportType) {
+        const type = reportType.value;
+        renderReport(type);
       }
     });
-    html += "</tr>";
+  }
+  const exportReportBtn = document.querySelector('#exportReportBtn');
+  if (exportReportBtn) {
+    exportReportBtn.addEventListener('click', () => {
+      const reportType = document.querySelector('#reportType');
+      if (reportType) {
+        const type = reportType.value;
+        const grouped = groupScheduleData(lastScheduleData, type);
+        const wb = XLSX.utils.book_new();
+        Object.keys(grouped).forEach(group => {
+          const ws = XLSX.utils.json_to_sheet(grouped[group]);
+          XLSX.utils.book_append_sheet(wb, ws, group);
+        });
+        XLSX.writeFile(wb, `schedule-report-by-${type}.xlsx`);
+      }
+    });
+  }
+  const forecastBtn = document.querySelector('#forecastBtn');
+  if (forecastBtn) {
+    forecastBtn.addEventListener('click', () => {
+      const pagesPerStudent = document.querySelector('#pagesPerStudent');
+      const scantronsPerStudent = document.querySelector('#scantronsPerStudent');
+      if (pagesPerStudent && scantronsPerStudent) {
+        const pages = parseInt(pagesPerStudent.value, 10) || 1;
+        const scantrons = parseInt(scantronsPerStudent.value, 10) || 0;
+        const forecast = forecastResources(lastScheduleData, pages, scantrons);
+        const forecastOutput = document.querySelector('#forecast-output');
+        if (forecastOutput) forecastOutput.innerHTML = `
+          <div><strong>Total Students:</strong> ${forecast.totalStudents}</div>
+          <div><strong>Bond Paper Pages Needed:</strong> ${forecast.bondPapers}</div>
+          <div><strong>Scantrons Needed:</strong> ${forecast.scantrons}</div>
+        `;
+      }
+    });
+  }
+  const scheduleFilter = document.querySelector('#viewTypeSelect'); 
+  if (scheduleFilter) {
+    scheduleFilter.addEventListener('change', () => {
+      [
+        'courseCodeFilter', 'departmentFilter', 'yearFilter',
+        'sectionFilter', 'dayFilter', 'roomFilter', 'proctorFilter'
+      ].forEach(id => {
+        const sel = document.querySelector(`#${id}`);
+        if (sel) sel.value = 'all';
+      });
+      const scheduleFilterVal = scheduleFilter.value;
+      if (scheduleFilterVal === 'all') {
+        populateFilters(lastScheduleData);
+      } else {
+        let filtered = lastScheduleData;
+        if (scheduleFilterVal === 'scheduled') {
+          filtered = filtered.filter(e =>
+            isNonEmpty(e['Course Code']) &&
+            isNonEmpty(e['Year']) &&
+            isNonEmpty(e['Section']) &&
+            isNonEmpty(e['Subject']) &&
+            e.Day && e.Day !== "Unscheduled" &&
+            e.Time && e.Room && e.Proctor
+          );
+        } else if (scheduleFilterVal === 'unscheduled') {
+          filtered = filtered.filter(e =>
+            !isNonEmpty(e['Course Code']) ||
+            !isNonEmpty(e['Year']) ||
+            !isNonEmpty(e['Section']) ||
+            !isNonEmpty(e['Subject']) ||
+            !e.Day || e.Day === "Unscheduled" ||
+            !e.Time || !e.Room || !e.Proctor
+          );
+        }
+        populateFilters(filtered);
+      }
+      filterSchedule();
+    });
+  }
+  [
+    'courseCodeFilter', 'departmentFilter', 'yearFilter',
+    'sectionFilter', 'dayFilter', 'roomFilter', 'proctorFilter'
+  ].forEach(id => {
+    const filterEl = document.querySelector(`#${id}`);
+    if (filterEl) {
+      filterEl.addEventListener('change', filterSchedule);
+    }
   });
 
-  html += "</tbody></table>";
-  outputDiv.innerHTML = html;
-}
+  // Initial data load
+  async function loadAndRender() {
+    try {
+      // Load your data here
+      const [subjects, rooms, proctors] = await Promise.all([
+        getAllSchedules(),
+        getRooms(),
+        getProctors()
+      ]);
+      // Normalize all rows
+      const normSubjects = subjects.map(normalizeRow);
+      const normRooms = rooms.map(normalizeRow);
+      const normProctors = proctors.map(normalizeRow);
 
-function renderProctorSummary(report) {
-  const div = document.getElementById("proctor-summary");
-  if (!div) return;
-  if (!Array.isArray(report) || report.length === 0) {
-    div.innerHTML = "<div>No proctor workload data available.</div>";
-    return;
-  }
-  let html = "<h3>Proctor Workload Summary</h3><table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse;'>";
-  html += "<thead><tr><th>Name</th><th>Type</th><th>Required Hours</th><th>Assigned Hours</th><th>% Fulfilled</th></tr></thead><tbody>";
-  report.forEach(row => {
-    html += `<tr>
-      <td>${row.Name}</td>
-      <td>${row.facultyType}</td>
-      <td>${row.RequiredHours}</td>
-      <td>${row.AssignedHours}</td>
-      <td>${row.PercentFulfilled}</td>
-    </tr>`;
-  });
-  html += "</tbody></table>";
-  div.innerHTML = html;
-}
+      console.log('Subjects:', normSubjects);
+      console.log('Rooms:', normRooms);
+      console.log('Proctors:', normProctors);
 
-async function main() {
-  renderOutput("Loading schedule...");
-  try {
-    // Fetch and normalize data
-    const subjectsRaw = await getAllSchedules();
-    const roomsRaw = await getRooms();
-    const proctorsRaw = await getProctors();
+      lastScheduleData = generateExamSchedule(normSubjects, normRooms, normProctors);
+      console.log('Generated schedule:', lastScheduleData);
 
-    console.log("Raw Subjects Data:", subjectsRaw);
-    console.log("Raw Rooms Data:", roomsRaw);
-    console.log("Raw Proctors Data:", proctorsRaw);
-
-    const subjects = subjectsRaw.map(normalizeKeys);
-    const rooms = roomsRaw.map(normalizeKeys);
-    const proctors = proctorsRaw.map(normalizeKeys);
-
-    console.log("Normalized Subjects:", subjects);
-    console.log("Normalized Rooms:", rooms);
-    console.log("Normalized Proctors:", proctors);
-
-    const schedule = generateExamSchedule(subjects, rooms, proctors);
-    console.log("Generated Schedule:", schedule);
-
-    renderOutput(schedule);
-
-    // Render proctor workload summary
-    const proctorReport = getProctorWorkloadReport(proctors);
-    renderProctorSummary(proctorReport);
-
-    // Enable export button if present
-    const exportBtn = document.getElementById("exportExcelBtn");
-    if (exportBtn) {
-      exportBtn.disabled = false;
-      exportBtn.onclick = () => exportScheduleToExcel(schedule);
-    }
-  } catch (error) {
-    renderOutput("Failed to load schedule: " + error.message, true);
-  }
-}
-
-function normalizeKeys(obj) {
-  const keyMap = {
-    "Student Count": "studentCount",
-    "studentCount": "studentCount",
-    "Room Name": "name",
-    "name": "name",
-    "Capacity": "capacity",
-    "capacity": "capacity",
-    "Name": "name",
-    "Faculty Type": "facultyType",
-    "facultyType": "facultyType",
-    "Required Hours": "requiredHours",
-    "requiredHours": "requiredHours",
-    "Academic Load": "academicLoad",
-    "academicLoad": "academicLoad",
-    // Add more mappings as needed for your exact sheet columns
-  };
-  const newObj = {};
-  for (const key in obj) {
-    const normKey = keyMap[key] || key;
-    let value = obj[key];
-    // Remove surrounding quotes if present
-    if (typeof value === "string" && value.startsWith('"') && value.endsWith('"')) {
-      value = value.slice(1, -1);
-    }
-    // Convert certain fields to numbers
-    if (
-      normKey === "studentCount" ||
-      normKey === "capacity" ||
-      normKey === "requiredHours" ||
-      normKey === "academicLoad"
-    ) {
-      newObj[normKey] = value ? Number(value) : 0;
-    } else {
-      newObj[normKey] = value;
+      populateFilters(lastScheduleData);
+      filterSchedule(); // Initial render
+    } catch (err) {
+      renderOutput("Failed to load schedule: " + err, true);
+      console.error('Error in loadAndRender:', err);
     }
   }
-  return newObj;
-}
 
-main();
-
-document.getElementById("scheduleFilter").addEventListener("change", function() {
-  const filterType = this.value;
-  renderOutput(lastScheduleData, filterType);
+  loadAndRender();
 });
-
-function exportScheduleToExcel(schedule) {
-  const grouped = {};
-  schedule.forEach(row => {
-    const dept = row._tab || "Other";
-    if (!grouped[dept]) grouped[dept] = [];
-    grouped[dept].push(row);
-  });
-
-  const wb = XLSX.utils.book_new();
-
-  Object.entries(grouped).forEach(([dept, rows]) => {
-    const exportRows = rows.map(({["Schedule Summary"]: _, ...rest}) => rest);
-    const ws = XLSX.utils.json_to_sheet(exportRows);
-    XLSX.utils.book_append_sheet(wb, ws, dept.substring(0, 31));
-  });
-
-  XLSX.writeFile(wb, "Exam-Schedule.xlsx");
-}
-
-
-function renderSchedulingSummary(data) {
-  const summaryDiv = document.getElementById("scheduling-summary");
-  if (!summaryDiv) return;
-
-  const summary = {
-    totalSubjects: data.length,
-    scheduled: data.filter(row => row.Day && row.Day !== "Unscheduled").length,
-    unscheduled: data.filter(row => !row.Day || row.Day === "Unscheduled").length,
-    reasons: {}
-  };
-
-  // Collect reasons for unscheduled exams
-  data.filter(row => !row.Day || row.Day === "Unscheduled")
-    .forEach(row => {
-      const reason = row.Reason || "Unknown reason";
-      summary.reasons[reason] = (summary.reasons[reason] || 0) + 1;
-    });
-
-  // Generate summary HTML
-  let html = `<div class="scheduling-summary" style="margin: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">`;
-  
-  // Overall Summary
-  html += `<h3>Scheduling Summary</h3>`;
-  html += `<div class="summary-overview">`;
-  html += `<div class="summary-item">`;
-  html += `<span class="summary-label">Total Subjects:</span>`;
-  html += `<span class="summary-value">${summary.totalSubjects}</span>`;
-  html += `</div>`;
-  html += `<div class="summary-item">`;
-  html += `<span class="summary-label">Successfully Scheduled:</span>`;
-  html += `<span class="summary-value" style="color: #28a745;">${summary.scheduled}</span>`;
-  html += `</div>`;
-  html += `<div class="summary-item">`;
-  html += `<span class="summary-label">Unscheduled:</span>`;
-  html += `<span class="summary-value" style="color: #dc3545;">${summary.unscheduled}</span>`;
-  html += `</div>`;
-  html += `</div>`;
-
-  // Detailed Reason Analysis
-  if (Object.keys(summary.reasons).length > 0) {
-    html += `<h4 style="margin-top: 20px;">Unscheduled Exam Reasons:</h4>`;
-    html += `<div class="reasons-list">`;
-    Object.entries(summary.reasons).sort((a, b) => b[1] - a[1]).forEach(([reason, count]) => {
-      const percentage = ((count / summary.unscheduled) * 100).toFixed(1);
-      html += `<div class="reason-item">`;
-      html += `<span class="reason-count">${count}</span>`;
-      html += `<span class="reason-label">${reason}</span>`;
-      html += `<span class="reason-percentage">(${percentage}%)</span>`;
-      html += `</div>`;
-    });
-    html += `</div>`;
-  }
-
-  // Department-wise Summary
-  const deptSummary = {};
-  data.forEach(row => {
-    const dept = row["Course Code"]?.split("-")[0] || "Unknown";
-    deptSummary[dept] = deptSummary[dept] || {
-      total: 0,
-      scheduled: 0,
-      unscheduled: 0
-    };
-    deptSummary[dept].total++;
-    if (!row.Day || row.Day === "Unscheduled") {
-      deptSummary[dept].unscheduled++;
-    } else {
-      deptSummary[dept].scheduled++;
-    }
-  });
-
-  if (Object.keys(deptSummary).length > 1) { // Only show if there are multiple departments
-    html += `<h4 style="margin-top: 20px;">Department-wise Summary:</h4>`;
-    html += `<div class="dept-summary">`;
-    Object.entries(deptSummary).sort((a, b) => b[1].total - a[1].total).forEach(([dept, stats]) => {
-      const scheduledPct = ((stats.scheduled / stats.total) * 100).toFixed(1);
-      html += `<div class="dept-item">`;
-      html += `<span class="dept-name">${dept}</span>`;
-      html += `<span class="dept-stats">Total: ${stats.total}, Scheduled: ${stats.scheduled} (${scheduledPct}%)</span>`;
-      html += `</div>`;
-    });
-    html += `</div>`;
-  }
-
-  html += `</div>`;
-  summaryDiv.innerHTML = html;
-}
