@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Login - Proctor Management System</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/password-toggle.js"></script>
 </head>
 <body>
     <div class="login-container card">
@@ -35,7 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label>Email:</label>
             <input type="email" name="email" required><br>
             <label>Password:</label>
-            <input type="password" name="password" required><br>
+            <div class="password-wrapper">
+                <input type="password" name="password" id="login-password" required autocomplete="current-password">
+                <span class="toggle-password" id="toggle-login-password" tabindex="-1">Show</span>
+            </div>
             <button type="submit">Login</button>
         </form>
         <p>Don't have an account? <a href="signup.php">Sign up</a></p>

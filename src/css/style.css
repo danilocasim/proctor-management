@@ -296,3 +296,76 @@ p[style*="color: green"] {
         padding: 1em 1.2em;
     }
 }
+
+/* Show/Hide Password toggle enhancements */
+.toggle-password {
+    color: var(--light-green);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--light-green);
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    font-size: 1em;
+    z-index: 2;
+    padding: 2px 12px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    box-shadow: 0 1px 6px rgba(63,182,139,0.07);
+    outline: none;
+    margin-left: 4px;
+    letter-spacing: 0.5px;
+}
+.toggle-password:hover, .toggle-password:focus {
+    background: var(--light-green);
+    color: var(--dark-green);
+    border: 1px solid var(--green);
+    box-shadow: 0 2px 8px rgba(63,182,139,0.13);
+}
+.toggle-password:active {
+    background: var(--green);
+    color: var(--accent);
+    border: 1px solid var(--light-green);
+}
+/* Optional: animate the visibility change */
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    transition: box-shadow 0.2s, border 0.2s;
+}
+.password-wrapper input:focus {
+    box-shadow: 0 0 0 2px var(--light-green);
+    border: 1.5px solid var(--light-green);
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    width: 100%;
+    padding-right: 60px;
+    box-sizing: border-box;
+}
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #3fb68b;
+    background: none;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    font-size: 1em;
+    z-index: 2;
+    padding: 0 6px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+.toggle-password:hover {
+    background: #3fb68b;
+    color: #102820;
+}
