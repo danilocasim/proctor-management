@@ -59,7 +59,7 @@ $assessments = $stmt->fetchAll();
 <body>
     <nav>
         <div class="logo-container">
-            <img src="../images/logo.png" alt="Logo">
+            <img src="../assets/images/logo.png" alt="Logo">
             <span class="system-title">Proctor Management System</span>
         </div>
         <ul>

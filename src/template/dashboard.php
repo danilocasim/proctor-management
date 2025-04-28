@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status']) && !
 <body>
     <nav>
         <div class="logo-container">
-            <img src="../assets/image/logo.png" alt="Logo">
+            <img src="../assets/images/logo.png" alt="Logo">
             <span class="system-title">Proctor Management System</span>
         </div> 
         <ul>

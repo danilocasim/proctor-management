@@ -403,6 +403,10 @@ $is_admin = (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin');
 </head>
 <body>
     <nav>
+        <div class="logo-container">
+            <img src="../assets/images/logo.png" alt="Logo">
+            <span class="system-title">Proctor Management System</span>
+        </div>
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="manage_rooms.php">Rooms</a></li>
