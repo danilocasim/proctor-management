@@ -6,19 +6,22 @@ require '../includes/db.php';
 $courses_stmt = $pdo->query("SELECT * FROM courses ORDER BY course_name ASC");
 $courses = $courses_stmt->fetchAll();
 
+$is_admin = (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin');
+
 // Handle add section
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_section'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_section']) && $is_admin) {
     $section_number = trim($_POST['section_number']);
     $year_level = trim($_POST['year_level']);
     $course_id = intval($_POST['course_id']);
-    $stmt = $pdo->prepare("INSERT INTO sections (section_number, year_level, course_id) VALUES (?, ?, ?)");
-    $stmt->execute([$section_number, $year_level, $course_id]);
+    $student_count = intval($_POST['student_count']);
+    $stmt = $pdo->prepare("INSERT INTO sections (section_number, year_level, course_id, student_count) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$section_number, $year_level, $course_id, $student_count]);
     header('Location: manage_sections.php');
     exit;
 }
 
 // Handle delete section
-if (isset($_GET['delete'])) {
+if (isset($_GET['delete']) && $is_admin) {
     $section_id = intval($_GET['delete']);
     $stmt = $pdo->prepare("DELETE FROM sections WHERE section_id = ?");
     $stmt->execute([$section_id]);
@@ -27,7 +30,7 @@ if (isset($_GET['delete'])) {
 }
 
 // Handle bulk delete
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_delete']) && !empty($_POST['delete_ids'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_delete']) && !empty($_POST['delete_ids']) && $is_admin) {
     $ids = array_map('intval', $_POST['delete_ids']);
     $placeholders = rtrim(str_repeat('?,', count($ids)), ',');
     $stmt = $pdo->prepare("DELETE FROM sections WHERE section_id IN ($placeholders)");
@@ -61,6 +64,7 @@ $sections = $stmt->fetchAll();
     </nav>
     <div class="container">
         <h2>Manage Sections</h2>
+        <?php if ($is_admin): ?>
         <form method="post">
             <label>Section Number:</label>
             <input type="text" name="section_number" required>
@@ -75,8 +79,11 @@ $sections = $stmt->fetchAll();
                     </option>
                 <?php endforeach; ?>
             </select>
+            <label>Number of Students:</label>
+            <input type="number" name="student_count" min="0" required>
             <button type="submit" name="add_section">Add Section</button>
         </form>
+        <?php endif; ?>
         <h3>Section List</h3>
         <form method="post" id="bulkDeleteForm">
         <table>
@@ -87,7 +94,10 @@ $sections = $stmt->fetchAll();
                     <th>Section</th>
                     <th>Year Level</th>
                     <th>Course</th>
+                    <th>Number of Students</th>
+                    <?php if ($is_admin): ?>
                     <th>Action</th>
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -98,14 +108,19 @@ $sections = $stmt->fetchAll();
                     <td><?php echo htmlspecialchars($section['section_number']); ?></td>
                     <td><?php echo htmlspecialchars($section['year_level']); ?></td>
                     <td><?php echo htmlspecialchars($section['course_name']); ?></td>
-                    <td>
-                        <a href="?delete=<?php echo $section['section_id']; ?>" onclick="return confirm('Delete this section?');">Delete</a>
+                    <td><?php echo htmlspecialchars($section['student_count']); ?></td>
+                    <?php if ($is_admin): ?>
+                    <td data-label="Action">
+                        <a href="?delete=<?php echo $section['section_id']; ?>" class="action-link" onclick="return confirm('Delete this section?');">Delete</a>
                     </td>
+                    <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <?php if ($is_admin): ?>
         <button type="submit" name="bulk_delete" onclick="return confirm('Delete selected sections?');">Delete Selected</button>
+        <?php endif; ?>
         </form>
         <script>
         document.addEventListener('DOMContentLoaded', function() {

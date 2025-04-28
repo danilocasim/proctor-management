@@ -8,8 +8,10 @@ $courses = $pdo->query("SELECT * FROM courses ORDER BY course_name ASC")->fetchA
 // Fetch all distinct year levels from sections for the year dropdown
 $years = $pdo->query("SELECT DISTINCT year_level FROM sections ORDER BY year_level ASC")->fetchAll(PDO::FETCH_COLUMN);
 
+$is_admin = (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin');
+
 // Handle add assessment
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_assessment'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_assessment']) && $is_admin) {
     $assessment_type = trim($_POST['assessment_type']);
     $schedule_date = $_POST['schedule_date'];
     $start_time = $_POST['start_time'];
@@ -25,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_assessment'])) {
 }
 
 // Handle delete assessment
-if (isset($_GET['delete'])) {
+if (isset($_GET['delete']) && $is_admin) {
     $assessment_id = intval($_GET['delete']);
     $stmt = $pdo->prepare("DELETE FROM assessments WHERE assessment_id = ?");
     $stmt->execute([$assessment_id]);
@@ -34,7 +36,7 @@ if (isset($_GET['delete'])) {
 }
 
 // Handle bulk delete
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_delete']) && !empty($_POST['delete_ids'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_delete']) && !empty($_POST['delete_ids']) && $is_admin) {
     $ids = array_map('intval', $_POST['delete_ids']);
     $placeholders = rtrim(str_repeat('?,', count($ids)), ',');
     $stmt = $pdo->prepare("DELETE FROM assessments WHERE assessment_id IN ($placeholders)");
@@ -72,6 +74,7 @@ $assessments = $stmt->fetchAll();
     </nav>
     <div class="container">
         <h2>Manage Assessments</h2>
+        <?php if ($is_admin): ?>
         <form method="post">
             <label>Assessment Type:</label>
             <input type="text" name="assessment_type" required>
@@ -88,16 +91,11 @@ $assessments = $stmt->fetchAll();
             <select name="year" required>
                 <option value="">-- Select Year --</option>
                 <?php foreach ($years as $year): ?>
-                    <option value="<?php echo htmlspecialchars($year); ?>"><?php echo htmlspecialchars($year); ?></option>
+                    <option value="<?php echo $year; ?>"><?php echo htmlspecialchars($year); ?></option>
                 <?php endforeach; ?>
             </select>
             <label>Semester:</label>
-            <select name="semester" required>
-                <option value="">-- Select Semester --</option>
-                <option value="1st">1st</option>
-                <option value="2nd">2nd</option>
-                <option value="Summer">Summer</option>
-            </select>
+            <input type="text" name="semester" required>
             <label>Date:</label>
             <input type="date" name="schedule_date" required>
             <label>Start Time:</label>
@@ -105,9 +103,10 @@ $assessments = $stmt->fetchAll();
             <label>End Time:</label>
             <input type="time" name="end_time" required>
             <label>Status:</label>
-            <input type="text" name="status" required>
+            <input type="text" name="status">
             <button type="submit" name="add_assessment">Add Assessment</button>
         </form>
+        <?php endif; ?>
         <h3>Assessment List</h3>
         <form method="post" id="bulkDeleteForm">
         <table>
@@ -123,7 +122,9 @@ $assessments = $stmt->fetchAll();
                     <th>Start</th>
                     <th>End</th>
                     <th>Status</th>
+                    <?php if ($is_admin): ?>
                     <th>Action</th>
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -139,14 +140,18 @@ $assessments = $stmt->fetchAll();
                     <td><?php echo htmlspecialchars($assessment['start_time']); ?></td>
                     <td><?php echo htmlspecialchars($assessment['end_time']); ?></td>
                     <td><?php echo htmlspecialchars($assessment['status']); ?></td>
-                    <td>
-                        <a href="?delete=<?php echo $assessment['assessment_id']; ?>" onclick="return confirm('Delete this assessment?');">Delete</a>
+                    <?php if ($is_admin): ?>
+                    <td data-label="Action">
+                        <a href="?delete=<?php echo $assessment['assessment_id']; ?>" class="action-link" onclick="return confirm('Delete this assessment?');">Delete</a>
                     </td>
+                    <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <?php if ($is_admin): ?>
         <button type="submit" name="bulk_delete" onclick="return confirm('Delete selected assessments?');">Delete Selected</button>
+        <?php endif; ?>
         </form>
         <script>
         // Select/Deselect all checkboxes

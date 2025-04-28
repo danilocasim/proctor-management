@@ -15,18 +15,45 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: var(--dark-green);
-    color: var(--accent);
+    background: url('../assets/image/bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #e0e0e0;
     min-height: 100vh;
+}
+
+/* Overlay for darkening the background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(20, 30, 40, 0.65);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.container, .main-content, .user-info, table, .card, .dashboard-box {
+    position: relative;
+    z-index: 1;
+}
+
+/* Card/Panel style for dashboard or login */
+.card, .dashboard-box, .main-content {
+    background: rgba(34, 40, 49, 0.93);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    padding: 2em 2.5em;
+    margin: 2em auto;
+    max-width: 400px;
 }
 
 /* Navigation bar */
 nav {
-    background: var(--green);
+    background: rgba(19, 111, 99, 0.98);
     padding: 0.5em 0;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     display: flex;
     align-items: center;
+    z-index: 2;
 }
 nav .logo-container {
     display: flex;
@@ -69,20 +96,55 @@ nav ul li a:hover, nav ul li a.active {
     color: var(--dark-green);
 }
 
-/* Container */
-.container {
-    max-width: 1100px;
+/* Table styling for dashboard */
+table {
+    background: rgba(34, 40, 49, 0.96);
+    border-radius: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 95%;
     margin: 2em auto;
-    background: rgba(16,40,32,0.97);
-    border-radius: 12px;
-    box-shadow: 0 2px 24px rgba(16,40,32,0.2);
-    padding: 2em 2.5em;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+thead tr {
+    background: #136f63;
+}
+th, td {
+    padding: 0.8em 1em;
+    text-align: left;
+    color: #f2f2f2;
+}
+th {
+    font-size: 1.08em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: #136f63;
+}
+tbody tr {
+    background: rgba(16, 40, 32, 0.92);
+    border-bottom: 1px solid #3fb68b;
+}
+tbody tr:last-child {
+    border-bottom: none;
 }
 
-/* Headings */
-h2, h3 {
-    color: var(--light-green);
-    margin-top: 0;
+/* Action links and buttons */
+.action-link, a.action-link, td[data-label="Action"] a, .action-btn, .action {
+    color: #ffda47 !important; /* bright yellow for contrast */
+    font-weight: 600;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+.action-link:hover, a.action-link:hover, td[data-label="Action"] a:hover, .action-btn:hover, .action:hover {
+    color: #fff !important;
+    background: #136f63;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+/* For action cells in tables, ensure background is slightly darker for contrast */
+td[data-label="Action"] {
+    background: rgba(16, 40, 32, 0.95);
 }
 
 /* Forms */
@@ -106,62 +168,59 @@ input, select, textarea {
     font-size: 1em;
     transition: border 0.2s;
 }
-input:focus, select:focus, textarea:focus {
-    border: 1.5px solid var(--light-green);
+input, select {
+    border-radius: 6px;
+    border: none;
+    padding: 0.7em 1em;
+    margin-bottom: 1em;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    background: #222831;
+    color: #f2f2f2;
+    border: 1px solid #3fb68b;
+}
+input:focus, select:focus {
     outline: none;
+    border-color: #136f63;
+    background: #1a242f;
+}
+textarea {
+    padding: 0.6em 1em;
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    background: var(--dark-green);
+    color: var(--accent);
+    margin-bottom: 0.7em;
+    width: 100%;
+    font-size: 1em;
+    transition: border 0.2s;
 }
 
 /* Buttons */
 button {
-    background: var(--light-green);
-    color: var(--dark-green);
-    border: none;
-    border-radius: 6px;
-    padding: 0.7em 1.5em;
-    font-size: 1em;
-    font-weight: 600;
+    background: #136f63;
+    color: #fff;
+    font-weight: bold;
     cursor: pointer;
-    margin-top: 1em;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s;
+    border-radius: 6px;
+    border: none;
+    padding: 0.7em 1em;
+    margin-bottom: 1em;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
 }
 button:hover {
-    background: var(--accent);
-    color: var(--green);
+    background: #3fb68b;
+    color: #222831;
 }
 
-/* Tables */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--green);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 1.5em;
-}
-th, td {
-    padding: 0.9em 1em;
-    text-align: left;
-}
-th {
-    background: var(--light-green);
-    color: var(--dark-green);
-    font-weight: bold;
-}
-tbody tr:nth-child(even) {
-    background: rgba(16,40,32,0.8);
-}
-tbody tr:nth-child(odd) {
-    background: rgba(19,111,99,0.5);
-}
-td {
-    color: var(--accent);
-}
-a {
+/* Headings */
+h2, h3 {
     color: var(--light-green);
-    text-decoration: underline;
-}
-a:hover {
-    color: var(--accent);
+    margin-top: 0;
 }
 
 /* Alerts/feedback */
@@ -175,24 +234,65 @@ p[style*="color: green"] {
     margin-bottom: 1.5em;
 }
 
-/* Responsive */
-@media (max-width: 700px) {
-    .container {
-        padding: 1em 0.5em;
-    }
-    nav {
-        flex-direction: column;
-        align-items: flex-start;
+/* Responsive tweaks */
+@media (max-width: 900px) {
+    .container, .main-content, .card, .dashboard-box, .filter-bar {
+        max-width: 98vw;
+        padding: 0.7em 0.3em;
+        margin: 1em auto;
     }
     nav ul {
         flex-direction: column;
-        margin: 1em 0 0 0;
+        margin: 0;
     }
     nav ul li {
-        margin: 0.5em 0;
+        margin: 0.3em 0;
     }
-    nav .logo-container {
-        margin-left: 1em;
-        margin-bottom: 0.7em;
+    .filter-bar form {
+        flex-direction: column;
+        gap: 0.5em;
+    }
+    table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+    }
+    thead {
+        display: none;
+    }
+    tr {
+        margin-bottom: 1.2em;
+        background: rgba(16, 40, 32, 0.88);
+        border-radius: 10px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        padding: 0.6em 0.5em;
+    }
+    td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        min-height: 34px;
+    }
+    td:before {
+        position: absolute;
+        left: 1em;
+        top: 50%;
+        transform: translateY(-50%);
+        white-space: nowrap;
+        font-weight: bold;
+        color: #3fb68b;
+        content: attr(data-label);
+        text-align: left;
+    }
+    .login-container, .card {
+        min-width: 0;
+        width: 97vw;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 600px) {
+    button, input, select {
+        font-size: 1.1em;
+        padding: 1em 1.2em;
     }
 }
