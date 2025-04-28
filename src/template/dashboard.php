@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status']) && !
 <head>
     <meta charset="UTF-8">
     <title>Dashboard - Proctor Management System</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo.png">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>

@@ -333,18 +333,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_schedule'])) {
     $room_conflict->execute([
         $room_id,
         $custom_date,
-        $end_time, $end_time,
-        $start_time, $start_time,
-        $start_time, $end_time
+        $custom_end, $custom_end,
+        $custom_start, $custom_start,
+        $custom_start, $custom_end,
+        $schedule_id
     ]);
     if ($room_conflict->fetch()) $warnings[] = 'Room conflict with another schedule.';
     $proctor_conflict = $pdo->prepare("SELECT 1 FROM exam_schedules WHERE proctor_id=? AND custom_date=? AND ((custom_start < ? AND custom_end > ?) OR (custom_start < ? AND custom_end > ?) OR (custom_start >= ? AND custom_end <= ?)) AND schedule_id!=?");
     $proctor_conflict->execute([
         $proctor_id,
         $custom_date,
-        $end_time, $end_time,
-        $start_time, $start_time,
-        $start_time, $end_time
+        $custom_end, $custom_end,
+        $custom_start, $custom_start,
+        $custom_start, $custom_end,
+        $schedule_id
     ]);
     if ($proctor_conflict->fetch()) $warnings[] = 'Proctor conflict with another schedule.';
     // Assessment time
@@ -399,6 +401,7 @@ $is_admin = (isset($_SESSION['role']) && $_SESSION['role'] === 'Admin');
 <head>
     <meta charset="UTF-8">
     <title>Manage Exam Schedules - Proctor Management System</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo.png">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
